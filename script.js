@@ -3,52 +3,82 @@ const buttons = document.querySelectorAll("button");
 const clearBtn = document.querySelector(".clear");
 const operandBtns = document.querySelectorAll(".operand");
 const operatorBtns = document.querySelectorAll(".operator");
+const equalsBtn = document.querySelector(".equals");
 
-display.textContent = "0";
-let a = null;
-let b = null;
-let result = null;
+let displayValue = "0";
+let firstOperand = null;
+let secondOperand = null;
 let operator = null;
+let result = null;
 
 clearBtn.addEventListener("click", initialState);
-Array.from(operandBtns).map((btn) => btn.addEventListener("click", getValue));
-Array.from(operatorBtns).map((btn) =>
-  btn.addEventListener("click", getOperator)
-);
+equalsBtn.addEventListener("click", evaluate);
+
+operandBtns.forEach((btn) => btn.addEventListener("click", getValue));
+
+operatorBtns.forEach((btn) => btn.addEventListener("click", getOperator));
 
 function initialState() {
-  display.textContent = "0";
-  a = null;
-  b = null;
-  result = null;
+  displayValue = "0";
+  firstOperand = null;
+  secondOperand = null;
   operator = null;
+  result = null;
+  updateDisplayValue();
 }
 
-function displayValue(value) {
-  const currentValue = display.textContent;
-  if (currentValue === "0") {
-    display.textContent = "";
-    return (display.textContent = value);
-  }
-  return (display.textContent = currentValue + value);
+function updateDisplayValue() {
+  display.textContent = displayValue;
 }
 
-function getValue(e) {
-  const value = e.target.value;
+updateDisplayValue();
 
-  if (a === null) {
-    displayValue(value);
-    return (a = value);
+function getValue() {
+  const value = this.value;
+  if (firstOperand === null) {
+    if (displayValue === "0" || displayValue === 0) {
+      displayValue = value;
+      return updateDisplayValue();
+    } else if (firstOperand === displayValue) {
+      displayValue = value;
+      return updateDisplayValue();
+    }
+    displayValue += value;
+    return updateDisplayValue();
   }
 
-  a += value;
-  console.log("a", a);
-  displayValue(a);
-  return a;
+  if (displayValue === firstOperand) {
+    displayValue = value;
+    return updateDisplayValue();
+  }
+  displayValue += value;
+  return updateDisplayValue();
 }
 
 function getOperator(e) {
-  return (operator = e.target.value);
+  if (operator !== null) {
+    firstOperand = secondOperand;
+    secondOperand = display.textContent;
+    return evaluate();
+  }
+  firstOperand = display.textContent;
+  operator = e.target.value;
+  console.log("firstOperand", firstOperand);
+  console.log("operator", operator);
+  console.log("secondOperand", secondOperand);
+}
+
+function evaluate() {
+  if (firstOperand === null && secondOperand === null && operator === null) {
+    return;
+  }
+  secondOperand = display.textContent;
+  console.log("secondOperand", secondOperand);
+  result = operate(firstOperand, secondOperand, operator);
+  console.log("result", result);
+  displayValue = result;
+  updateDisplayValue();
+  operator = null;
 }
 
 function sum(a, b) {
@@ -69,19 +99,17 @@ function divide(a, b) {
 }
 
 function operate(a, b, operator) {
+  a = Number(a);
+  b = Number(b);
   switch (operator) {
     case "+":
-      sum(a, b);
-      return;
+      return sum(a, b);
     case "-":
-      subtract(a, b);
-      return;
+      return subtract(a, b);
     case "*":
-      multiply(a, b);
-      return;
+      return multiply(a, b);
     case "/":
-      divide(a, b);
-      return;
+      return divide(a, b);
     default:
       return;
   }
