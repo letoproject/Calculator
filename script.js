@@ -1,24 +1,34 @@
 const display = document.querySelector(".display");
+const currentOperation = document.querySelector(".currentOperation");
 const buttons = document.querySelectorAll("button");
 const clearBtn = document.querySelector(".clear");
 const operandBtns = document.querySelectorAll(".operand");
 const operatorBtns = document.querySelectorAll(".operator");
 const equalsBtn = document.querySelector(".equals");
 
+currentOperation.textContent = "";
 let displayValue = "0";
 let firstOperand = null;
 let secondOperand = null;
 let operator = null;
 let result = null;
+let lastOperator = null;
 
 clearBtn.addEventListener("click", initialState);
 equalsBtn.addEventListener("click", evaluate);
 
-operandBtns.forEach((btn) => btn.addEventListener("click", getValue));
+operandBtns.forEach((btn) => {
+  btn.addEventListener("click", getValue),
+    btn.addEventListener("click", updateDisplayValue);
+});
 
-operatorBtns.forEach((btn) => btn.addEventListener("click", getOperator));
+operatorBtns.forEach((btn) => {
+  btn.addEventListener("click", getOperator);
+  btn.addEventListener("click", updateDisplayValue);
+});
 
 function initialState() {
+  currentOperation.textContent = "";
   displayValue = "0";
   firstOperand = null;
   secondOperand = null;
@@ -29,56 +39,93 @@ function initialState() {
 
 function updateDisplayValue() {
   display.textContent = displayValue;
+  if (firstOperand && operator) {
+    return (currentOperation.textContent = `${firstOperand} ${operator} `);
+  }
+
+  if (secondOperand !== null) {
+    return (currentOperation.textContent = `${firstOperand} ${operator} ${secondOperand} =`);
+  }
 }
 
 updateDisplayValue();
 
 function getValue() {
+  console.log("click value", this.value);
   const value = this.value;
   if (firstOperand === null) {
     if (displayValue === "0" || displayValue === 0) {
-      displayValue = value;
-      return updateDisplayValue();
-    } else if (firstOperand === displayValue) {
-      displayValue = value;
-      return updateDisplayValue();
+      return (displayValue = value);
+    } else if (displayValue === firstOperand) {
+      return (displayValue = value);
+    } else {
+      return (displayValue += value);
     }
-    displayValue += value;
-    return updateDisplayValue();
   }
 
-  if (displayValue === firstOperand) {
-    displayValue = value;
-    return updateDisplayValue();
+  if (secondOperand === null) {
+    if (displayValue === firstOperand) {
+      return (displayValue = value);
+    }
+    return (displayValue += value);
   }
-  displayValue += value;
-  return updateDisplayValue();
 }
 
 function getOperator(e) {
-  if (operator !== null) {
-    firstOperand = secondOperand;
-    secondOperand = display.textContent;
-    return evaluate();
+  console.log("click operator", e.target.value);
+  if (operator !== null && firstOperand !== null) {
+    lastOperator = e.target.value;
+    console.log("firstOperand1", firstOperand);
+    console.log("operator1", operator);
+    // secondOperand = displayValue;
+    console.log("lastOperator1", lastOperator);
+    console.log("evaluate1");
+    evaluate();
+    return;
   }
-  firstOperand = display.textContent;
+
+  if (operator === null && firstOperand !== null) {
+    // currentOperator = lastOperator;
+    // operator = e.target.value;
+    operator = lastOperator;
+    secondOperand = displayValue;
+    console.log("lastOperator2", lastOperator);
+    console.log("firstOperand", firstOperand);
+    console.log("evaluate2");
+    evaluate();
+    // operate(firstOperand, secondOperand, operator);
+    return;
+  }
+  firstOperand = displayValue;
   operator = e.target.value;
+
   console.log("firstOperand", firstOperand);
   console.log("operator", operator);
-  console.log("secondOperand", secondOperand);
+  console.log("lastOperator", lastOperator);
 }
 
 function evaluate() {
-  if (firstOperand === null && secondOperand === null && operator === null) {
+  if (
+    (firstOperand === null || firstOperand === undefined) &&
+    (secondOperand === null || secondOperand === undefined) &&
+    (operator === null || operator === undefined)
+  ) {
     return;
   }
-  secondOperand = display.textContent;
-  console.log("secondOperand", secondOperand);
+
+  secondOperand = displayValue;
+
+  console.log("firstOperandE", firstOperand);
+  console.log("operatorE", operator);
+  console.log("secondOperandE", secondOperand);
+
   result = operate(firstOperand, secondOperand, operator);
   console.log("result", result);
   displayValue = result;
   updateDisplayValue();
-  operator = null;
+  firstOperand = result;
+  secondOperand = null;
+  operator = lastOperator;
 }
 
 function sum(a, b) {
