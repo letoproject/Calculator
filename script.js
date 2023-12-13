@@ -54,18 +54,25 @@ function setSign() {
 }
 
 function getValue(value) {
-  if (value === "." && currentOperation.textContent.includes(".")) return;
+  if (value === "." && currentOperation.textContent.includes(".")) {
+    return;
+  } else if (value === "." && currentOperation.textContent === "0") {
+    return (currentOperation.textContent += value);
+  }
+
+  if (currentOperation.textContent === "0") {
+    return (currentOperation.textContent = value);
+  }
 
   if (result) {
-    currentOperation.textContent = "";
     previousOperation.textContent = `${result} ${currentOperator}`;
     if (!currentOperator) {
       previousOperation.textContent = "";
       initialState();
     }
+    result = null;
+    currentOperation.textContent = "";
   }
-
-  if (currentOperation.textContent === "0") currentOperation.textContent = "";
 
   currentOperation.textContent += value;
 }
@@ -76,7 +83,7 @@ function getOperator(operator) {
   }
 
   previousOperand = currentOperation.textContent;
-  if (currentOperation.textContent === "" && result !== null) {
+  if (previousOperand === "" && result !== null) {
     previousOperand = result;
   }
 
@@ -91,13 +98,19 @@ function evaluate() {
   }
 
   currentOperand = currentOperation.textContent;
-  if (currentOperand === null || currentOperand === "") {
+  if (
+    currentOperand === null ||
+    currentOperand === "" ||
+    currentOperand === "."
+  ) {
     return;
   }
 
   previousOperation.textContent = `${previousOperand} ${currentOperator} ${currentOperand} =`;
   result = operate(previousOperand, currentOperand, currentOperator);
-  currentOperation.textContent = result;
+  if (!result) return;
+
+  currentOperation.textContent = Math.round(result * 1000) / 1000;
   currentOperator = null;
 }
 
@@ -114,7 +127,11 @@ function multiply(a, b) {
 }
 
 function divide(a, b) {
-  if (b === 0) return null;
+  if (b === 0) {
+    alert("Nah");
+    initialState();
+    return null;
+  }
   return a / b;
 }
 
