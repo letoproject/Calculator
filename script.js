@@ -56,8 +56,12 @@ function setSign() {
 function getValue(value) {
   if (value === "." && currentOperation.textContent.includes(".")) {
     return;
-  } else if (value === "." && currentOperation.textContent === "0") {
-    return (currentOperation.textContent += value);
+  } else if (
+    value === "." &&
+    (currentOperation.textContent === "0" ||
+      currentOperation.textContent === "")
+  ) {
+    return (currentOperation.textContent = 0 + value);
   }
 
   if (currentOperation.textContent === "0") {
