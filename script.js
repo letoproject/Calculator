@@ -19,6 +19,7 @@ clearBtn.addEventListener("click", initialState);
 delBtn.addEventListener("click", deleteValue);
 signBtn.addEventListener("click", setSign);
 equalsBtn.addEventListener("click", evaluate);
+window.addEventListener("keydown", handleKeyboardEvent);
 
 operandBtns.forEach((btn) => {
   btn.addEventListener("click", (e) => getValue(e.target.value));
@@ -37,8 +38,6 @@ function initialState() {
   result = null;
 }
 
-console.log(result);
-
 function deleteValue() {
   if (currentOperation.textContent === "0") return;
 
@@ -48,6 +47,7 @@ function deleteValue() {
 
 function setSign() {
   if (currentOperation.textContent === "0") return;
+
   currentOperation.textContent = (
     Number(currentOperation.textContent) * -1
   ).toString();
@@ -157,4 +157,14 @@ function operate(a, b, operator) {
     default:
       return;
   }
+}
+
+function handleKeyboardEvent(e) {
+  const { key } = e;
+  if ((key >= 0 && key <= 9) || key === ".") getValue(key);
+  if (key === "=" || key === "Enter") evaluate();
+  if (key === "Backspace") deleteValue();
+  if (key === "Escape") initialState();
+  if (key === "+" || key === "-" || key === "*" || key === "/")
+    getOperator(key);
 }
